@@ -176,13 +176,13 @@ describe('Cart Context', () => {
       fireEvent.press(getByTestId('add-to-cart'));
     });
 
-    await act(async () => {
+    /* await act(async () => {
       fireEvent.press(getByTestId('increment'));
-    });
+    }); */
 
-    await act(async () => {
+    /* await act(async () => {
       fireEvent.press(getByTestId('decrement'));
-    });
+    }); */
 
     await wait(() =>
       expect(mockedAsyncStorage.setItem).toHaveBeenCalledTimes(3),
