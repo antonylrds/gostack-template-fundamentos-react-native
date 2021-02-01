@@ -40,49 +40,42 @@ const CartProvider: React.FC = ({ children }) => {
     loadProducts();
   }, []);
 
-  useEffect(() => {
-    async function saveProducts(): Promise<void> {
-      await AsyncStorage.setItem(
-        '@GoMarket:products',
-        JSON.stringify(products),
-      );
-    }
-    saveProducts();
-  }, [products]);
-
   const addToCart = useCallback(
     async product => {
-      const productsCopy = [...products];
-      const productExists = productsCopy.find((obj, index) => {
-        if (obj.id === product.id) {
-          productsCopy[index].quantity += 1;
-          return true;
-        }
-        return false;
-      });
+      const productExists = products.find(p => p.id === product.id);
 
-      if (!productExists) {
-        const newProduct = { ...product, quantity: 1 };
-        setProducts([...products, newProduct]);
+      if (productExists) {
+        setProducts(
+          products.map(p =>
+            p.id === product.id ? { ...product, quantity: p.quantity + 1 } : p,
+          ),
+        );
       } else {
-        setProducts([...productsCopy]);
+        setProducts([...products, { ...product, quantity: 1 }]);
       }
+
+      await AsyncStorage.setItem(
+        '@GoMarket:products',
+        JSON.stringify([...products, { ...product, quantity: 1 }]),
+      );
     },
     [products],
   );
 
   const increment = useCallback(
     async id => {
-      const productsCopy = [...products];
-      productsCopy.find((obj, index) => {
-        if (obj.id === id) {
-          productsCopy[index].quantity += 1;
-          return true;
-        }
-        return false;
-      });
+      const newProducts = products.map(product =>
+        product.id === id
+          ? { ...product, quantity: product.quantity + 1 }
+          : product,
+      );
 
-      setProducts([...productsCopy]);
+      setProducts(newProducts);
+
+      await AsyncStorage.setItem(
+        '@GoMarket:products',
+        JSON.stringify(newProducts),
+      );
     },
     [products],
   );
@@ -102,7 +95,11 @@ const CartProvider: React.FC = ({ children }) => {
         return false;
       });
 
-      setProducts([...productsCopy]);
+      setProducts(productsCopy);
+      await AsyncStorage.setItem(
+        '@GoMarket:products',
+        JSON.stringify(productsCopy),
+      );
     },
     [products],
   );
